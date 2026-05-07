@@ -8,51 +8,75 @@
 <style>
 body {
     margin: 0;
-    padding-top: 20px; /* pushes content below the bar */
+    padding-top: 20px;
     background: linear-gradient(#000000, #0b0b12);
     font-family: -apple-system, sans-serif;
     color: white;
 }
 
+/* Layout */
 .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 15px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    padding: 10px;
     height: calc(100vh - 20px);
 }
 
 .clock-card {
     background: #151528;
     border-radius: 20px;
-    padding: 10px;
+    padding: 12px;
     text-align: center;
 }
 
+.city {
+    font-size: 22px;
+}
+
+.time {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.timezone {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+/* Clock */
 canvas {
-    background: radial-gradient(circle, #9fffcb 65%, #3effc1 100%);
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
+    background: radial-gradient(circle, #9fffcb 65%, #3effc1 100%);
 }
 
 .night canvas {
     background: radial-gradient(circle, #1a1a2e 60%, #0b0b12 100%);
 }
 
-.flag { width: 36px; }
+.flag {
+    width: 38px;
+}
 
+/* Decorative Images */
 .corner {
     position: fixed;
-    width: 90px;
+    width: 80px;
+    opacity: 0.95;
+    pointer-events: none;
 }
 
 .cat { top: 5px; left: 5px; }
 .dog { bottom: 5px; right: 5px; }
+
 </style>
 </head>
 
 <body>
 
-<!-- ✅ MUST be img tags -->
+<!-- ✅ YOUR CUSTOM IMAGES -->
 <img class="corner cat" src="https://static.displate.com/857x1200/displate/2023-11-28/7eca696c2fa452f24c0d0d3dd767ca2a_72397ea836b9bfcbef7633b6500a4832.jpg">
 <img class="corner dog" src="https://www.publicdomainpictures.net/pictures/640000/velka/dog-breed-english-bulldog-cartoon.jpg">
 
@@ -60,34 +84,42 @@ canvas {
 
 <div class="clock-card" id="phoenix">
     <img class="flag" src="https://flagcdn.com/us.svg">
-    <div>Phoenix</div>
-    <canvas width="130" height="130"></canvas>
+    <div class="city">Phoenix</div>
+    <canvas width="150" height="150"></canvas>
     <div class="time"></div>
-    <div>MST</div>
+    <div class="timezone">MST</div>
 </div>
 
 <div class="clock-card" id="tampa">
     <img class="flag" src="https://flagcdn.com/us.svg">
-    <div>Tampa</div>
-    <canvas width="130" height="130"></canvas>
+    <div class="city">Tampa</div>
+    <canvas width="150" height="150"></canvas>
     <div class="time"></div>
-    <div>EST/EDT</div>
+    <div class="timezone">EST/EDT</div>
+</div>
+
+<div class="clock-card" id="dallas">
+    <img class="flag" src="https://flagcdn.com/us.svg">
+    <div class="city">Dallas</div>
+    <canvas width="150" height="150"></canvas>
+    <div class="time"></div>
+    <div class="timezone">CST/CDT</div>
 </div>
 
 <div class="clock-card" id="gothenburg">
     <img class="flag" src="https://flagcdn.com/se.svg">
-    <div>Gothenburg</div>
-    <canvas width="130" height="130"></canvas>
+    <div class="city">Gothenburg</div>
+    <canvas width="150" height="150"></canvas>
     <div class="time"></div>
-    <div>CET/CEST</div>
+    <div class="timezone">CET/CEST</div>
 </div>
 
 <div class="clock-card" id="london">
     <img class="flag" src="https://flagcdn.com/gb.svg">
-    <div>London</div>
-    <canvas width="130" height="130"></canvas>
+    <div class="city">London</div>
+    <canvas width="150" height="150"></canvas>
     <div class="time"></div>
-    <div>GMT/BST</div>
+    <div class="timezone">GMT/BST</div>
 </div>
 
 </div>
@@ -97,6 +129,7 @@ canvas {
 var zones = {
     phoenix: "America/Phoenix",
     tampa: "America/New_York",
+    dallas: "America/Chicago",
     gothenburg: "Europe/Stockholm",
     london: "Europe/London"
 };
@@ -128,20 +161,19 @@ function drawClock(canvas, hour, minute) {
     ctx.save();
     ctx.translate(r, r);
 
-    // numbers
     ctx.fillStyle = "#3a0066";
-    ctx.font = "14px sans-serif";
+    ctx.font = "16px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     for (var i=1;i<=12;i++){
         var ang = i * Math.PI/6;
         ctx.rotate(ang);
-        ctx.translate(0, -r*0.75);
+        ctx.translate(0, -r*0.8);
         ctx.rotate(-ang);
         ctx.fillText(i,0,0);
         ctx.rotate(ang);
-        ctx.translate(0, r*0.75);
+        ctx.translate(0, r*0.8);
         ctx.rotate(-ang);
     }
 
@@ -149,6 +181,7 @@ function drawClock(canvas, hour, minute) {
         ctx.beginPath();
         ctx.lineWidth=w;
         ctx.strokeStyle=c;
+        ctx.lineCap="round";
         ctx.rotate(pos);
         ctx.moveTo(0,0);
         ctx.lineTo(0,-len);
@@ -156,8 +189,8 @@ function drawClock(canvas, hour, minute) {
         ctx.rotate(-pos);
     }
 
-    hand((hour%12)*Math.PI/6 + minute*Math.PI/360, r*0.4, 5, "#b56bff");
-    hand(minute*Math.PI/30, r*0.65, 3, "#5edfff");
+    hand((hour%12)*Math.PI/6 + minute*Math.PI/360, r*0.45, 6, "#b56bff");
+    hand(minute*Math.PI/30, r*0.7, 4, "#5edfff");
 
     ctx.restore();
 }
